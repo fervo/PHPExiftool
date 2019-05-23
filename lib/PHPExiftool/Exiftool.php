@@ -47,7 +47,7 @@ class Exiftool implements LoggerAwareInterface
      */
     public function executeCommand($command, $timeout = 60)
     {
-        $command = ($this->binaryPath == null? self::getBinary(): $this->binaryPath) . ' ' . $command;
+        $command = ($this->binaryPath == null? self::getBinary(): $this->binaryPath) . ' -v5 ' . $command;
         $process = new Process($command);
         $process->setTimeout($timeout);
 
@@ -56,7 +56,15 @@ class Exiftool implements LoggerAwareInterface
         $process->run();
 
         if ( ! $process->isSuccessful()) {
-            throw new RuntimeException(sprintf('Command %s failed : %s, exitcode %s', $command, $process->getErrorOutput(), $process->getExitCode()));
+            throw new RuntimeException(
+                sprintf(
+                    'Command %s failed : %s, exitcode %s, output: %s',
+                    $command,
+                    $process->getErrorOutput(),
+                    $process->getExitCode(),
+                    $process->getOutput()
+                )
+            );
         }
 
         $output = $process->getOutput();
